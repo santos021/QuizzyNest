@@ -1,210 +1,264 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuizApp Admin Panel</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard || QuizzyNest Admin Panel</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+	href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+	rel="stylesheet">
 
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
-        }
-        .sidebar {
-            width: 280px;
-            min-height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background: #212529;
-        }
-        .main-content {
-            margin-left: 280px;
-            padding: 2rem;
-        }
-        .sidebar .nav-link {
-            font-size: 1.05rem;
-            padding: 0.8rem 1.5rem;
-            color: #adb5bd;
-            border-radius: 0.375rem;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-        }
-        .sidebar .nav-link .bi {
-            margin-right: 1rem;
-            font-size: 1.2rem;
-        }
-        .sidebar .nav-link:hover {
-            background-color: #343a40;
-            color: #fff;
-        }
-        .sidebar .nav-link.active {
-            background-color: #0d6efd;
-            color: #fff;
-            font-weight: 600;
-        }
-        .sidebar-header {
-            padding: 1.5rem;
-            color: #fff;
-            border-bottom: 1px solid #495057;
-        }
-        .sidebar-header .bi-mortarboard-fill {
-            font-size: 2rem;
-        }
-        .card-icon {
-            font-size: 3rem;
-            opacity: 0.3;
-        }
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                min-height: auto;
-            }
-            .main-content {
-                margin-left: 0;
-            }
-        }
-    </style>
+<style>
+body {
+	font-family: 'Inter', sans-serif;
+	background-color: #f8f9fa;
+}
+
+.sidebar {
+	width: 280px;
+	min-height: 100vh;
+	position: fixed;
+	top: 0;
+	left: 0;
+	background: #212529;
+}
+
+.main-content {
+	margin-left: 280px;
+	padding: 2rem;
+}
+
+.sidebar .nav-link {
+	font-size: 1.05rem;
+	padding: 0.8rem 1.5rem;
+	color: #adb5bd;
+	border-radius: 0.375rem;
+	margin-bottom: 0.5rem;
+	display: flex;
+	align-items: center;
+}
+
+.sidebar .nav-link .bi {
+	margin-right: 1rem;
+	font-size: 1.2rem;
+}
+
+.sidebar .nav-link:hover {
+	background-color: #343a40;
+	color: #fff;
+}
+
+.sidebar .nav-link.active {
+	background-color: #0d6efd;
+	color: #fff;
+	font-weight: 600;
+}
+
+.sidebar-header {
+	padding: 1.5rem;
+	color: #fff;
+	border-bottom: 1px solid #495057;
+}
+
+.sidebar-header .bi-mortarboard-fill {
+	font-size: 2rem;
+}
+
+.card-icon {
+	font-size: 3rem;
+	opacity: 0.3;
+}
+
+@media ( max-width : 768px) {
+	.sidebar {
+		width: 100%;
+		height: auto;
+		position: relative;
+		min-height: auto;
+	}
+	.main-content {
+		margin-left: 0;
+	}
+}
+</style>
 </head>
 <body>
-    <div class="sidebar p-3 d-flex flex-column">
-        <div class="sidebar-header text-center">
-            <i class="bi bi-mortarboard-fill"></i>
-            <h4 class="mt-2">QuizAdmin</h4>
-        </div>
-        <hr class="text-secondary">
-        <ul class="nav nav-pills flex-column mb-auto">
-            <li class="nav-item">
-                <a th:href="@{/admin/dashboard}" class="nav-link" th:classappend="${page == 'dashboard'} ? 'active'">
-                    <i class="bi bi-grid-1x2-fill"></i>Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a th:href="@{/admin/categories}" class="nav-link" th:classappend="${page == 'categories'} ? 'active'">
-                    <i class="bi bi-tags-fill"></i>Categories
-                </a>
-            </li>
-            <li class="nav-item">
-                <a th:href="@{/admin/questions}" class="nav-link" th:classappend="${page == 'questions'} ? 'active'">
-                    <i class="bi bi-patch-question-fill"></i>Questions
-                </a>
-            </li>
-            <li class="nav-item">
-                <a th:href="@{/admin/users}" class="nav-link" th:classappend="${page == 'users'} ? 'active'">
-                    <i class="bi bi-people-fill"></i>Users
-                </a>
-            </li>
-            <li class="nav-item">
-                <a th:href="@{/admin/profile}" class="nav-link" th:classappend="${page == 'profile'} ? 'active'">
-                    <i class="bi bi-person-circle"></i>Profile
-                </a>
-            </li>
-        </ul>
-        <hr class="text-secondary">
-        <div>
-            <a href="/logout" class="nav-link bg-danger text-light">
-                <i class="bi bi-box-arrow-left"></i>Logout
-            </a>
-        </div>
-    </div>
+	<div class="sidebar p-3 d-flex flex-column">
+		<div class="sidebar-header text-center">
+			<i class="bi bi-mortarboard-fill"></i>
+			<h4 class="mt-2">Admin Panel</h4>
+		</div>
+		<hr class="text-secondary">
+		<ul class="nav nav-pills flex-column mb-auto">
+			<li class="nav-item"><a th:href="@{/admin/dashboard}"
+				class="nav-link" th:classappend="${page == 'dashboard'} ? 'active'">
+					<i class="bi bi-grid-1x2-fill"></i>Dashboard
+			</a></li>
+			<li class="nav-item"><a th:href="@{/admin/categories}"
+				class="nav-link" th:classappend="${page == 'categories'} ? 'active'">
+					<i class="bi bi-tags-fill"></i>Categories
+			</a></li>
+			<li class="nav-item"><a th:href="@{/admin/questions}"
+				class="nav-link" th:classappend="${page == 'questions'} ? 'active'">
+					<i class="bi bi-patch-question-fill"></i>Questions
+			</a></li>
+			<li class="nav-item"><a th:href="@{/admin/users}"
+				class="nav-link" th:classappend="${page == 'users'} ? 'active'">
+					<i class="bi bi-people-fill"></i>Users
+			</a></li>
+			<li class="nav-item"><a th:href="@{/admin/profile}"
+				class="nav-link" th:classappend="${page == 'profile'} ? 'active'">
+					<i class="bi bi-person-circle"></i>Profile
+			</a></li>
+		</ul>
+		<hr class="text-secondary">
+		<div>
+			<a href="/logout" class="nav-link bg-danger text-light"> <i
+				class="bi bi-box-arrow-left"></i>Logout
+			</a>
+		</div>
+	</div>
 
-    <main class="main-content">
-        <h1 class="h2 mb-4">Dashboard</h1>
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card text-white bg-primary shadow-sm">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="card-title" th:text="${categoryCount}"></h5>
-                            <p class="card-text mb-0">Total Categories</p>
-                        </div>
-                        <i class="bi bi-tags-fill card-icon"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card text-white bg-success shadow-sm">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="card-title">250</h5>
-                            <p class="card-text mb-0">Total Questions</p>
-                        </div>
-                        <i class="bi bi-patch-question-fill card-icon"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card text-white bg-info shadow-sm">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="card-title">85</h5>
-                            <p class="card-text mb-0">Registered Users</p>
-                        </div>
-                        <i class="bi bi-people-fill card-icon"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="card mt-4">
-            <div class="card-header">Recent Activity</div>
-            <div class="card-body">
-                <p>User 'john.doe' just completed the 'Java Basics' quiz with a score of 8/10.</p>
-                <p>New category 'Python Programming' was added.</p>
-            </div>
-        </div>
+	<main class="main-content">
+		<h1 class="h2 mb-4">Dashboard</h1>
+		<div class="row">
+			<div class="col-md-4 mb-4">
+				<div class="card text-white bg-primary shadow-sm">
+					<div
+						class="card-body d-flex justify-content-between align-items-center">
+						<div>
+							<h5 class="card-title" th:text="${categoryCount}"></h5>
+							<p class="card-text mb-0">Total Categories</p>
+						</div>
+						<i class="bi bi-tags-fill card-icon"></i>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4 mb-4">
+				<div class="card text-white bg-success shadow-sm">
+					<div
+						class="card-body d-flex justify-content-between align-items-center">
+						<div>
+							<h5 class="card-title" th:text="${questionCount}"></h5>
+							<p class="card-text mb-0">Total Questions</p>
+						</div>
+						<i class="bi bi-patch-question-fill card-icon"></i>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4 mb-4">
+				<div class="card text-white bg-info shadow-sm">
+					<div
+						class="card-body d-flex justify-content-between align-items-center">
+						<div>
+							<h5 class="card-title" th:text="${userCount}"></h5>
+							<p class="card-text mb-0">Registered Users</p>
+						</div>
+						<i class="bi bi-people-fill card-icon"></i>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="card mt-4">
+			<div class="card-header">Recent Activity</div>
+			<div class="card-body">
+				<!-- <p>User 'john.doe' just completed the 'Java Basics' quiz with a score of 8/10.</p>
+                <p>New category 'Python Programming' was added.</p> -->
+				<ul class="list-unstyled">
+					<li><span>New category 'Python Programming' was added.</span>
+						<br> <small class="text-muted">25-07-2025</small>
+						<hr></li>
+					<li><span>User 'john.doe' just completed the 'Java Basics' quiz with a score of 8/10.</span>
+						<br> <small class="text-muted">28-07-2025</small>
+						<hr></li>
+				</ul>
+			</div>
+		</div>
 
-        <!-- Top Performers and Leaderboard -->
-        <div class="row mt-4">
-            <div class="col-lg-6 mb-4">
-                <div class="card">
-                    <div class="card-header">Top Performing Users by Category</div>
-                    <div class="card-body">
-                        <select class="form-select mb-3">
-                            <option selected>Select a Category...</option>
-                            <option value="1">Java</option>
-                            <option value="2">SQL</option>
-                        </select>
-                        <table class="table table-sm">
-                            <thead>
-                                <tr><th>Rank</th><th>Username</th><th>Score</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>1</td><td>jane.smith</td><td>95%</td></tr>
-                                <tr><td>2</td><td>john.doe</td><td>92%</td></tr>
-                                <tr><td>3</td><td>peter.jones</td><td>88%</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6 mb-4">
-                <div class="card">
-                    <div class="card-header">Overall Leaderboard</div>
-                    <div class="card-body">
-                        <table class="table table-sm">
-                            <thead>
-                                <tr><th>Rank</th><th>Username</th><th>Total Score</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td><i class="bi bi-trophy-fill text-warning"></i> 1</td><td>jane.smith</td><td>1250</td></tr>
-                                <tr><td>2</td><td>john.doe</td><td>1190</td></tr>
-                                <tr><td>3</td><td>susan.b</td><td>1150</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+		<!-- Top Performers and Leaderboard -->
+		<div class="row mt-4">
+			<div class="col-lg-6 mb-4">
+				<div class="card">
+					<div class="card-header">Top Performing Users by Category</div>
+					<div class="card-body">
+						<select class="form-select mb-3">
+							<option selected>Select a Category...</option>
+							<option value="1">Java</option>
+							<option value="2">SQL</option>
+						</select>
+						<table class="table table-sm">
+							<thead>
+								<tr>
+									<th>Rank</th>
+									<th>Username</th>
+									<th>Score</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>1</td>
+									<td>jane.smith</td>
+									<td>95%</td>
+								</tr>
+								<tr>
+									<td>2</td>
+									<td>john.doe</td>
+									<td>92%</td>
+								</tr>
+								<tr>
+									<td>3</td>
+									<td>peter.jones</td>
+									<td>88%</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-6 mb-4">
+				<div class="card">
+					<div class="card-header">Overall Leaderboard</div>
+					<div class="card-body">
+						<table class="table table-sm">
+							<thead>
+								<tr>
+									<th>Rank</th>
+									<th>Username</th>
+									<th>Total Score</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><i class="bi bi-trophy-fill text-warning"></i> 1</td>
+									<td>jane.smith</td>
+									<td>1250</td>
+								</tr>
+								<tr>
+									<td>2</td>
+									<td>john.doe</td>
+									<td>1190</td>
+								</tr>
+								<tr>
+									<td>3</td>
+									<td>susan.b</td>
+									<td>1150</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,5 +1,7 @@
 package in.quizzynest.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,6 +22,15 @@ public class UserDtls {
 	
 	private String role;
 	
+	private LocalDateTime regDate; // ✅ Changed from java.util.Date to LocalDateTime
+
+    public LocalDateTime getRegDate() {
+        return regDate;
+    }
+
+    public void setRegDate(LocalDateTime regDate) {
+        this.regDate = regDate;
+    }
 
 	public String getRole() {
 		return role;
