@@ -33,13 +33,13 @@ public class AdminController {
 
 	@Autowired
 	private QuestionService questionService;
-	
+
 	@Autowired
 	private UserService userService;
-	
+
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
@@ -61,6 +61,7 @@ public class AdminController {
 	public String showCategoryPage(Model model) {
 		model.addAttribute("category", new Category());
 		model.addAttribute("categories", categoryService.getAllCategory());
+		model.addAttribute("isEditCategory", false);
 		return "admin/category";
 	}
 
@@ -80,6 +81,7 @@ public class AdminController {
 		}
 		model.addAttribute("category", existingCategory);
 		model.addAttribute("categories", categoryService.getAllCategory());
+		model.addAttribute("isEditCategory", true);
 		return "admin/category";
 	}
 
@@ -99,10 +101,18 @@ public class AdminController {
 
 	// ------------------- Question Management-----------------
 	@GetMapping("/questions")
-	public String showQuestionsPage(Model model) {
+	public String showQuestionsPage(
+			@RequestParam(name = "categoryId", required = false, defaultValue = "0") int categoryId, Model model) {
 		model.addAttribute("question", new Question());
-		model.addAttribute("questions", questionService.getAllQuestions());
 		model.addAttribute("categories", categoryService.getAllCategory());
+
+		if (categoryId == 0) {
+			model.addAttribute("questions", questionService.getAllQuestions());
+		} else {
+			model.addAttribute("questions", questionService.getQuestionsByCategoryId(categoryId));
+		}
+
+		model.addAttribute("selectedCategoryId", categoryId); // Needed for "selected" in dropdown
 		model.addAttribute("isEdit", false);
 		return "admin/questions";
 	}
@@ -154,64 +164,60 @@ public class AdminController {
 	}
 
 	@GetMapping("/users")
-	public String allUsers(Model model,@RequestParam(defaultValue = "1") Integer type) {
+	public String allUsers(Model model, @RequestParam(defaultValue = "1") Integer type) {
 		List<UserDtls> users = null;
-		if (type==1) {
+		if (type == 1) {
 			users = userService.getUsers("ROLE_USER");
 		}
-		model.addAttribute("userType",type);
-		model.addAttribute("users",users);
+		model.addAttribute("userType", type);
+		model.addAttribute("users", users);
 		return "admin/users";
 	}
 
 	@GetMapping("/profile")
 	public String adminProfile(Model m, Principal p) {
-		String email = p.getName(); 
+		String email = p.getName();
 		UserDtls user = userRepository.findByEmail(email);
-		 m.addAttribute("admin", user);
+		m.addAttribute("admin", user);
 		return "admin/profile";
 	}
-	
+
 	@PostMapping("/update-profile")
-    public String updateAdminProfile(@ModelAttribute("admin") UserDtls updatedAdmin, RedirectAttributes redirect) {
-        UserDtls existingAdmin = userRepository.findById(updatedAdmin.getId()).orElse(null);
+	public String updateAdminProfile(@ModelAttribute("admin") UserDtls updatedAdmin, RedirectAttributes redirect) {
+		UserDtls existingAdmin = userRepository.findById(updatedAdmin.getId()).orElse(null);
 
-        if (existingAdmin != null) {
-            existingAdmin.setName(updatedAdmin.getName());
-            // Do not allow email/role updates from frontend for security
-            userRepository.save(existingAdmin);
-            redirect.addFlashAttribute("success", "Profile updated successfully.");
-        } else {
-            redirect.addFlashAttribute("error", "Admin not found.");
-        }
+		if (existingAdmin != null) {
+			existingAdmin.setName(updatedAdmin.getName());
+			// Do not allow email/role updates from frontend for security
+			userRepository.save(existingAdmin);
+			redirect.addFlashAttribute("success", "Profile updated successfully.");
+		} else {
+			redirect.addFlashAttribute("error", "Admin not found.");
+		}
 
-        return "redirect:/admin/profile";
-    }
-	
-	@PostMapping("/update-password")
-	public String updateAdminPassword(
-	        @RequestParam("id") Integer id,
-	        @RequestParam("currentPassword") String currentPassword,
-	        @RequestParam("newPassword") String newPassword,
-	        @RequestParam("confirmPassword") String confirmPassword,
-	        RedirectAttributes redirect) {
-
-	    UserDtls user = userRepository.findById(id).orElse(null);
-
-	    if (user != null && passwordEncoder.matches(currentPassword, user.getPassword())) {
-	        if (newPassword.equals(confirmPassword)) {
-	            user.setPassword(passwordEncoder.encode(newPassword));
-	            userRepository.save(user);
-	            redirect.addFlashAttribute("success", "Password updated successfully.");
-	        } else {
-	            redirect.addFlashAttribute("error", "New and confirm passwords do not match.");
-	        }
-	    } else {
-	        redirect.addFlashAttribute("error", "Invalid current password.");
-	    }
-
-	    return "redirect:/admin/profile";
+		return "redirect:/admin/profile";
 	}
 
+	@PostMapping("/update-password")
+	public String updateAdminPassword(@RequestParam("id") Integer id,
+			@RequestParam("currentPassword") String currentPassword, @RequestParam("newPassword") String newPassword,
+			@RequestParam("confirmPassword") String confirmPassword, RedirectAttributes redirect) {
+
+		UserDtls user = userRepository.findById(id).orElse(null);
+
+		if (user != null && passwordEncoder.matches(currentPassword, user.getPassword())) {
+			if (newPassword.equals(confirmPassword)) {
+				user.setPassword(passwordEncoder.encode(newPassword));
+				userRepository.save(user);
+				redirect.addFlashAttribute("success", "Password updated successfully.");
+			} else {
+				redirect.addFlashAttribute("error", "New and confirm passwords do not match.");
+			}
+		} else {
+			redirect.addFlashAttribute("error", "Invalid current password.");
+		}
+
+		return "redirect:/admin/profile";
+	}
 
 }

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{user/base :: layout(~{::section})}">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<section>
+		<!-- Profile View -->
+		<div id="profile-view" class="content-view active">
+			<h1 class="h2 mb-4">My Profile</h1>
+			<!-- Profile form content remains the same -->
+			<div class="row">
+				<div class="col-md-6 mb-4">
+					<div class="card">
+						<div class="card-header">Update Profile Information</div>
+						<div class="card-body">
+							<form>
+								<input type="hidden" th:value="${user.id}" name="id">
+								<div class="mb-3">
+									<label for="username" class="form-label">Username</label> <input
+										type="text" class="form-control" id="username"
+										th:value="${user.name}" readonly>
+								</div>
+								<div class="mb-3">
+									<label for="email" class="form-label">Email address</label> <input
+										type="email" class="form-control" id="email"
+										th:value="${user.email}" readonly>
+								</div>
+								<div class="mb-3">
+									<label for="userRole" class="form-label">Role</label> <input
+										type="text" class="form-control" id="userRole"
+										th:value="${user.role}" readonly>
+								</div>
+								<button type="submit" class="btn btn-primary">Save
+									Changes</button>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6 mb-4">
+					<div class="card">
+						<div class="card-header">Change Password</div>
+						<div class="card-body">
+							<form>
+								<div class="mb-3">
+									<label for="currentPassword" class="form-label">Current
+										Password</label> <input type="password" class="form-control"
+										id="currentPassword">
+								</div>
+								<div class="mb-3">
+									<label for="newPassword" class="form-label">New
+										Password</label> <input type="password" class="form-control"
+										id="newPassword">
+								</div>
+								<button type="submit" class="btn btn-danger">Update
+									Password</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</body>
+</html>

@@ -1,0 +1,32 @@
+body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .quiz-container {
+            max-width: 800px;
+            margin: auto;
+        }
+        .question-card, .result-card {
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+        }
+        .option-label {
+            display: block;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: background-color .2s, border-color .2s;
+        }
+        .option-label:hover {
+            background-color: #f8f9fa;
+        }
+        .option-label input {
+            display: none;
+        }
+        .option-label.selected {
+            background-color: #e0eaff;
+            border-color: #0d6efd;
+        }

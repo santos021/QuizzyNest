@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{user/base :: layout(~{::section})}">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<section>
+	 <!-- Results History View -->
+		<div id="results-view" class="content-view active">
+            <h1 class="h2 mb-4">My Past Results</h1>
+            <div class="card">
+                <div class="card-body">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Score</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Java Programming</td>
+                                <td>8 / 10</td>
+                                <td>2025-07-21</td>
+                                <td><button class="btn btn-sm btn-outline-primary">Retest</button></td>
+                            </tr>
+                            <tr>
+                                <td>SQL Databases</td>
+                                <td>6 / 10</td>
+                                <td>2025-07-19</td>
+                                <td><button class="btn btn-sm btn-outline-primary">Retest</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+	</section>
+
+</body>
+</html>
