@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{user/base :: layout(~{::section})}">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<section>
+		<!-- Results History View -->
+		<div id="results-view" class="content-view active">
+			<h1 class="h2 mb-4">My Past Results</h1>
+			<div class="card">
+				<div class="card-body">
+					<table class="table table-hover align-middle">
+						<thead>
+							<tr>
+								<th>Category</th>
+								<th>Score</th>
+								<th>Date</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="result : ${results}">
+								<td th:text="${result.category.title}"></td>
+								<td th:text="${result.score + ' / ' + result.total}"></td>
+								<td
+									th:text="${#temporals.format(result.attemptDate, 'yyyy-MM-dd')}"></td>
+								<td><a
+									th:href="@{'/user/quiz-attempt/' + ${result.category.id}}"
+									class="btn btn-sm btn-outline-primary">Retest</a></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</section>
+
+</body>
+</html>

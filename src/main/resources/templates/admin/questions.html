@@ -203,8 +203,9 @@ body {
 				<div class="modal-body">
 					<form
 						th:action="${isEdit} ? @{/admin/questions/update} : @{/admin/questions/add}"
-						method="post" id="questionForm">
-						<input type="hidden" name="id" th:value="${question.id}" />
+						method="post" th:object="${question}" id="questionForm">
+						<!-- <input type="hidden" name="id" th:value="${question.id}" /> -->
+						<input type="hidden" th:field="*{id}" />
 						<div class="mb-3">
 							<label for="questionCategory" class="form-label">Category</label>
 							<select class="form-select" id="questionCategory"
@@ -249,14 +250,16 @@ body {
 							<label for="correctAnswer" class="form-label">Correct
 								Answer</label> <select class="form-select" name="correctAnswer"
 								id="correctAnswer" required>
-								<option value="A" th:selected="${question.correctAnswer == 'A'}">Option
-									A</option>
-								<option value="B" th:selected="${question.correctAnswer == 'B'}">Option
-									B</option>
-								<option value="C" th:selected="${question.correctAnswer == 'C'}">Option
-									C</option>
-								<option value="D" th:selected="${question.correctAnswer == 'D'}">Option
-									D</option>
+								<option value="" disabled selected>Select correct
+									answer</option>
+								<option th:value="*{optionA}"
+									th:selected="*{correctAnswer} == *{optionA}">Option A</option>
+								<option th:value="*{optionB}"
+									th:selected="*{correctAnswer} == *{optionB}">Option B</option>
+								<option th:value="*{optionC}"
+									th:selected="*{correctAnswer} == *{optionC}">Option C</option>
+								<option th:value="*{optionD}"
+									th:selected="*{correctAnswer} == *{optionD}">Option D</option>
 							</select>
 						</div>
 					</form>

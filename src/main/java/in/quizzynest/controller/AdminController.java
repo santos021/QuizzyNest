@@ -112,7 +112,8 @@ public class AdminController {
 			model.addAttribute("questions", questionService.getQuestionsByCategoryId(categoryId));
 		}
 
-		model.addAttribute("selectedCategoryId", categoryId); // Needed for "selected" in dropdown
+		//model.addAttribute("selectedCategoryId", categoryId); // Needed for "selected" in dropdown
+		model.addAttribute("question", new Question());
 		model.addAttribute("isEdit", false);
 		return "admin/questions";
 	}

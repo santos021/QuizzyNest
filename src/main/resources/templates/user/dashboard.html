@@ -25,7 +25,7 @@
 								<!-- <button class="btn btn-light mt-3" data-bs-toggle="modal"
 									data-bs-target="#quizStartModal" data-category="Java"
 									data-time="5" data-questions="10">Start Quiz</button> -->
-									<a href="/user/quiz-attempt" class="btn btn-light mt-3">Start Quiz</a>
+									<a th:href="@{'/user/quiz-attempt/' + ${cat.id}}" class="btn btn-light mt-3">Start Quiz</a>
 							</div>
 						</div>
 					</div>
