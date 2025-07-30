@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import in.quizzynest.entity.Category;
 import in.quizzynest.entity.Question;
@@ -24,6 +26,7 @@ import in.quizzynest.entity.UserDtls;
 import in.quizzynest.repository.CategoryRepository;
 import in.quizzynest.repository.QuizResultRepository;
 import in.quizzynest.repository.UserRepository;
+import in.quizzynest.service.ActivityService;
 import in.quizzynest.service.CategoryService;
 import in.quizzynest.service.QuestionService;
 
@@ -45,6 +48,12 @@ public class UserController {
 	
 	@Autowired
 	private QuizResultRepository quizResultRepository;
+	
+	@Autowired
+	private ActivityService activityService;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@ModelAttribute
 	public void addUserToModel(Model model, Principal principal) {
@@ -62,7 +71,7 @@ public class UserController {
 	}
 
 	@GetMapping("/quiz-attempt/{categoryId}")
-	public String userQuizAttemptByCategory(@PathVariable int categoryId, Model model) {
+	public String userQuizAttemptByCategory(@PathVariable int categoryId, Model model,Principal principal) {
 		List<Question> questions = questionService.getQuestionsByCategoryId(categoryId);
 
 		List<Map<String, Object>> questionDTOs = new ArrayList<>();
@@ -77,10 +86,13 @@ public class UserController {
 
 		Category category = categoryService.getCategoryById(categoryId);
 		String categoryTitle = category.getTitle();
+		
+		String email = principal.getName();
 
 		model.addAttribute("questions", questionDTOs);
 		model.addAttribute("categoryTitle", categoryTitle);
 		model.addAttribute("categoryId", categoryId);
+		activityService.logActivity("User '" + email + "' started the '" + categoryTitle + "' quiz.");
 		return "user/attempt_quiz";
 	}
 
@@ -113,6 +125,11 @@ public class UserController {
 	    result.setTotal(total);
 	    result.setAttemptDate(LocalDateTime.now());
 	    quizResultRepository.save(result);
+	    
+	    String username = principal.getName();
+	    String quizTitle = category.getTitle();
+	    activityService.logActivity("User '" + username + "' completed the '" + quizTitle + "' quiz with a score of " + score + "/" + total + ".");
+
 
 	    model.addAttribute("score", score);
 	    model.addAttribute("total", total);
@@ -133,6 +150,33 @@ public class UserController {
 		UserDtls user = userRepository.findByEmail(email);
 		model.addAttribute("user", user);
 		return "user/profile";
+	}
+	
+	@PostMapping("/update-password")
+	public String updateUserPassword(
+	        @RequestParam("currentPassword") String currentPassword,
+	        @RequestParam("newPassword") String newPassword,
+	        @RequestParam("confirmPassword") String confirmPassword,
+	        Principal principal,
+	        RedirectAttributes redirect) {
+
+	    String email = principal.getName();
+	    UserDtls user = userRepository.findByEmail(email);
+
+	    if (user != null && passwordEncoder.matches(currentPassword, user.getPassword())) {
+	        if (newPassword.equals(confirmPassword)) {
+	            user.setPassword(passwordEncoder.encode(newPassword));
+	            userRepository.save(user);
+	            activityService.logActivity("User '" + user.getEmail() + "' changed the password.");
+	            redirect.addFlashAttribute("success", "Password updated successfully.");
+	        } else {
+	            redirect.addFlashAttribute("error", "New and confirm passwords do not match.");
+	        }
+	    } else {
+	        redirect.addFlashAttribute("error", "Invalid current password.");
+	    }
+
+	    return "redirect:/user/profile";
 	}
 
 }

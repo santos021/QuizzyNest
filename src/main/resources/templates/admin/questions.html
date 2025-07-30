@@ -91,7 +91,7 @@ body {
 </head>
 <body>
 	<div class="sidebar p-3 d-flex flex-column">
-		<div class="sidebar-header text-center">
+		<div class="sidebar-header text-warning text-center">
 			<i class="bi bi-mortarboard-fill"></i>
 			<h4 class="mt-2">Admin Panel</h4>
 		</div>
@@ -183,6 +183,35 @@ body {
 						</tbody>
 
 					</table>
+
+					<!-- Start Pagination -->
+					<div class="row">
+						<div class="col-md-4">Total Questions : [[${totalElements}]]</div>
+						<div class="col-md-6">
+
+							<nav aria-label="Page navigation example">
+								<ul class="pagination">
+									<li class="page-item" th:classappend="${isFirst}?'disabled':''"><a
+										class="page-link"
+										th:href="@{/admin/questions(pageNo=${pageNo > 0 ? pageNo - 1 : 0}, pageSize=${pageSize}, categoryId=${selectedCategoryId})}"
+										aria-label="Previous"> <span aria-hidden="true">&laquo;</span>
+									</a></li>
+
+									<li th:each="i:${#numbers.sequence(1,totalPages)}"
+										class="page-item" th:classappend="${pageNo +1==i}?'active':''"><a
+										class="page-link"
+										th:href="@{/admin/questions(pageNo=${i - 1}, pageSize=${pageSize}, categoryId=${selectedCategoryId})}">[[${i}]]</a></li>
+
+									<li class="page-item" th:classappend="${isLast}?'disabled':''"><a
+										class="page-link"
+										th:href="@{/admin/questions(pageNo=${pageNo + 1}, pageSize=${pageSize}, categoryId=${selectedCategoryId})}"
+										aria-label="Next"> <span aria-hidden="true">&raquo;</span>
+									</a></li>
+								</ul>
+							</nav>
+						</div>
+					</div>
+
 				</div>
 			</div>
 		</div>
@@ -196,7 +225,7 @@ body {
 				<div class="modal-header">
 					<h5 class="modal-title"
 						th:text="${isEdit} ? 'Edit Question' : 'Add New Question'"
-						id="questionModalLabel"></h5>
+						id="questionModal"></h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal"
 						aria-label="Close"></button>
 				</div>
@@ -252,14 +281,6 @@ body {
 								id="correctAnswer" required>
 								<option value="" disabled selected>Select correct
 									answer</option>
-								<option th:value="*{optionA}"
-									th:selected="*{correctAnswer} == *{optionA}">Option A</option>
-								<option th:value="*{optionB}"
-									th:selected="*{correctAnswer} == *{optionB}">Option B</option>
-								<option th:value="*{optionC}"
-									th:selected="*{correctAnswer} == *{optionC}">Option C</option>
-								<option th:value="*{optionD}"
-									th:selected="*{correctAnswer} == *{optionD}">Option D</option>
 							</select>
 						</div>
 					</form>
@@ -302,6 +323,45 @@ body {
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+	<script>
+	  function updateCorrectAnswerDropdown() {
+	    const optionA = document.getElementById('optionA').value.trim();
+	    const optionB = document.getElementById('optionB').value.trim();
+	    const optionC = document.getElementById('optionC').value.trim();
+	    const optionD = document.getElementById('optionD').value.trim();
+	
+	    const correctAnswerSelect = document.getElementById('correctAnswer');
+	
+	    // Clear old options
+	    correctAnswerSelect.innerHTML = '<option value="" disabled selected>Select correct answer</option>';
+	
+	    const options = [
+	      { label: 'Option A', value: optionA },
+	      { label: 'Option B', value: optionB },
+	      { label: 'Option C', value: optionC },
+	      { label: 'Option D', value: optionD },
+	    ];
+	
+	    options.forEach(opt => {
+	      if (opt.value) {
+	        const optEl = document.createElement('option');
+	        optEl.value = opt.value;
+	        optEl.textContent = `${opt.label}: ${opt.value}`;
+	        correctAnswerSelect.appendChild(optEl);
+	      }
+	    });
+	  }
+	
+	  // Update dropdown as user types
+	  ['optionA', 'optionB', 'optionC', 'optionD'].forEach(id => {
+	    document.getElementById(id).addEventListener('input', updateCorrectAnswerDropdown);
+	  });
+	
+	  // Optionally call once on modal open (for editing mode)
+	  document.getElementById('questionModal').addEventListener('shown.bs.modal', updateCorrectAnswerDropdown);
+	</script>
+
+
 	<script th:if="${isEdit}">
 		document.addEventListener("DOMContentLoaded", function() {
 			const modal = new bootstrap.Modal(document
@@ -311,22 +371,22 @@ body {
 	</script>
 
 	<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const deleteButtons = document.querySelectorAll(".delete-btn");
-    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
-
-    deleteButtons.forEach(button => {
-      button.addEventListener("click", function (e) {
-        e.preventDefault();
-
-        const questionId = this.getAttribute("data-id");
-        confirmDeleteBtn.href = `/admin/questions/delete/${questionId}`;
-
-        const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-        deleteModal.show();
-      });
-    });
-  });
+	  document.addEventListener("DOMContentLoaded", function () {
+	    const deleteButtons = document.querySelectorAll(".delete-btn");
+	    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+	
+	    deleteButtons.forEach(button => {
+	      button.addEventListener("click", function (e) {
+	        e.preventDefault();
+	
+	        const questionId = this.getAttribute("data-id");
+	        confirmDeleteBtn.href = `/admin/questions/delete/${questionId}`;
+	
+	        const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+	        deleteModal.show();
+	      });
+	    });
+	  });
 </script>
 
 

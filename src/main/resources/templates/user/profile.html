@@ -10,6 +10,9 @@
 		<!-- Profile View -->
 		<div id="profile-view" class="content-view active">
 			<h1 class="h2 mb-4">My Profile</h1>
+			<div th:if="${success}" class="alert alert-success"
+				th:text="${success}"></div>
+			<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 			<!-- Profile form content remains the same -->
 			<div class="row">
 				<div class="col-md-6 mb-4">
@@ -43,16 +46,22 @@
 					<div class="card">
 						<div class="card-header">Change Password</div>
 						<div class="card-body">
-							<form>
+							<form th:action="@{/user/update-password}" method="post">
+								<input type="hidden" th:value="${user.id}" name="id" />
 								<div class="mb-3">
 									<label for="currentPassword" class="form-label">Current
 										Password</label> <input type="password" class="form-control"
-										id="currentPassword">
+										name="currentPassword" id="currentPassword">
 								</div>
 								<div class="mb-3">
 									<label for="newPassword" class="form-label">New
 										Password</label> <input type="password" class="form-control"
-										id="newPassword">
+										name="newPassword" id="newPassword">
+								</div>
+								<div class="mb-3">
+									<label for="confirmPassword" class="form-label">Confirm
+										New Password</label> <input type="password" class="form-control"
+										name="confirmPassword" id="confirmPassword">
 								</div>
 								<button type="submit" class="btn btn-danger">Update
 									Password</button>

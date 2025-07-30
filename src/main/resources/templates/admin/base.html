@@ -91,7 +91,7 @@ body {
 </head>
 <body>
 	<div class="sidebar p-3 d-flex flex-column">
-		<div class="sidebar-header text-center">
+		<div class="sidebar-header text-warning text-center">
 			<i class="bi bi-mortarboard-fill"></i>
 			<h4 class="mt-2">Admin Panel</h4>
 		</div>
@@ -172,18 +172,17 @@ body {
 				<!-- <p>User 'john.doe' just completed the 'Java Basics' quiz with a score of 8/10.</p>
                 <p>New category 'Python Programming' was added.</p> -->
 				<ul class="list-unstyled">
-					<li><span>New category 'Python Programming' was added.</span>
-						<br> <small class="text-muted">25-07-2025</small>
-						<hr></li>
-					<li><span>User 'john.doe' just completed the 'Java Basics' quiz with a score of 8/10.</span>
-						<br> <small class="text-muted">28-07-2025</small>
+					<li th:each="activity : ${activities}"><span
+						th:text="${activity.description}"></span><br> <small
+						class="text-muted"
+						th:text="${#temporals.format(activity.timestamp, 'dd-MM-yyyy')}"></small>
 						<hr></li>
 				</ul>
 			</div>
 		</div>
 
 		<!-- Top Performers and Leaderboard -->
-		<div class="row mt-4">
+		<!-- <div class="row mt-4">
 			<div class="col-lg-6 mb-4">
 				<div class="card">
 					<div class="card-header">Top Performing Users by Category</div>
@@ -255,7 +254,7 @@ body {
 					</div>
 				</div>
 			</div>
-		</div>
+		</div> -->
 	</main>
 
 	<script

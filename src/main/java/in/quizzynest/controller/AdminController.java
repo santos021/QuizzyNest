@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,10 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+
+import in.quizzynest.entity.Activity;
 import in.quizzynest.entity.Category;
 import in.quizzynest.entity.Question;
 import in.quizzynest.entity.UserDtls;
 import in.quizzynest.repository.UserRepository;
+import in.quizzynest.service.ActivityService;
 import in.quizzynest.service.CategoryService;
 import in.quizzynest.service.QuestionService;
 import in.quizzynest.service.UserService;
@@ -43,13 +47,14 @@ public class AdminController {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
-//	@GetMapping("/")
-//	public String home() {
-//		return "admin/base";
-//	}
+	@Autowired
+	private ActivityService activityService;
+
 
 	@GetMapping("/dashboard")
 	public String dashboard(Model model) {
+		List<Activity> activities = activityService.getRecentActivities();
+		model.addAttribute("activities", activities);
 		model.addAttribute("categoryCount", categoryService.getAllCategory().size());
 		model.addAttribute("questionCount", questionService.getAllQuestions().size());
 		model.addAttribute("userCount", userService.getUsers("ROLE_USER").size());
@@ -58,17 +63,34 @@ public class AdminController {
 
 	// Show category management page
 	@GetMapping("/categories")
-	public String showCategoryPage(Model model) {
-		model.addAttribute("category", new Category());
-		model.addAttribute("categories", categoryService.getAllCategory());
-		model.addAttribute("isEditCategory", false);
-		return "admin/category";
+	public String showCategoryPage(Model m,
+	       @RequestParam(name = "pageNo", defaultValue = "0") Integer pageNo,
+	       @RequestParam(name = "pageSize", defaultValue = "4") Integer pageSize,
+	       @RequestParam(name = "id", required = false) Integer id) {
+
+	    m.addAttribute("category", id != null ? categoryService.getCategoryById(id) : new Category());
+	    m.addAttribute("isEditCategory", id != null);
+
+	    Page<Category> page = categoryService.getAllCategoryPagination(pageNo, pageSize);
+	    List<Category> categories = page.getContent();
+
+	    m.addAttribute("categories", categories);
+	    m.addAttribute("pageNo", page.getNumber());
+	    m.addAttribute("pageSize", pageSize);
+	    m.addAttribute("totalElements", page.getTotalElements());
+	    m.addAttribute("totalPages", page.getTotalPages());
+	    m.addAttribute("isFirst", page.isFirst());
+	    m.addAttribute("isLast", page.isLast());
+
+	    return "admin/category";
 	}
 
 	// Add new category
 	@PostMapping("/categories/add")
 	public String addCategory(@ModelAttribute("category") Category category) {
 		categoryService.saveCategory(category);
+
+		activityService.logActivity("New category '" + category.getTitle() + "' added.");
 		return "redirect:/admin/categories";
 	}
 
@@ -76,12 +98,17 @@ public class AdminController {
 	@GetMapping("/categories/edit/{id}")
 	public String editCategory(@PathVariable("id") int id, Model model) {
 		Category existingCategory = categoryService.getCategoryById(id);
+		String title = existingCategory.getTitle();
+
 		if (existingCategory == null) {
 			return "redirect:/admin/categories";
 		}
 		model.addAttribute("category", existingCategory);
 		model.addAttribute("categories", categoryService.getAllCategory());
 		model.addAttribute("isEditCategory", true);
+
+		activityService.logActivity("'" + title + "' category edited.");
+
 		return "admin/category";
 	}
 
@@ -95,26 +122,44 @@ public class AdminController {
 	// Delete category
 	@GetMapping("/categories/delete/{id}")
 	public String deleteCategory(@PathVariable("id") int id) {
+		Category category = categoryService.getCategoryById(id); // Fetch from DB
+		String title = category.getTitle();
+
 		categoryService.deleteCategory(id);
+
+		activityService.logActivity("'" + title + "' category deleted.");
 		return "redirect:/admin/categories";
 	}
 
 	// ------------------- Question Management-----------------
 	@GetMapping("/questions")
 	public String showQuestionsPage(
-			@RequestParam(name = "categoryId", required = false, defaultValue = "0") int categoryId, Model model) {
+			@RequestParam(name = "categoryId", required = false, defaultValue = "0") int categoryId, Model model, @RequestParam(name = "pageNo", defaultValue = "0") Integer pageNo,
+			@RequestParam(name = "pageSize", defaultValue = "5") Integer pageSize) {
 		model.addAttribute("question", new Question());
 		model.addAttribute("categories", categoryService.getAllCategory());
 
-		if (categoryId == 0) {
-			model.addAttribute("questions", questionService.getAllQuestions());
-		} else {
-			model.addAttribute("questions", questionService.getQuestionsByCategoryId(categoryId));
-		}
+		Page<Question> page;
+	    if (categoryId == 0) {
+	        page = questionService.getAllQuestionPagination(pageNo, pageSize);
+	    } else {
+	        page = questionService.getQuestionsByCategoryIdPagination(categoryId, pageNo, pageSize);
+	    }
 
-		//model.addAttribute("selectedCategoryId", categoryId); // Needed for "selected" in dropdown
+		model.addAttribute("selectedCategoryId", categoryId);
 		model.addAttribute("question", new Question());
 		model.addAttribute("isEdit", false);
+		
+		model.addAttribute("questions", page.getContent());
+	    model.addAttribute("pageNo", page.getNumber());
+	    model.addAttribute("pageSize", pageSize);
+	    model.addAttribute("totalElements", page.getTotalElements());
+	    model.addAttribute("totalPages", page.getTotalPages());
+	    model.addAttribute("isFirst", page.isFirst());
+	    model.addAttribute("isLast", page.isLast());
+	    model.addAttribute("isEdit", false);
+		
+		
 		return "admin/questions";
 	}
 
@@ -123,6 +168,7 @@ public class AdminController {
 			@RequestParam String optionA, @RequestParam String optionB, @RequestParam String optionC,
 			@RequestParam String optionD, @RequestParam String correctAnswer) {
 		Category category = categoryService.getCategoryById(categoryId);
+		String title = category.getTitle();
 		Question question = new Question();
 		question.setQuestionText(questionText);
 		question.setOptionA(optionA);
@@ -132,35 +178,68 @@ public class AdminController {
 		question.setCorrectAnswer(correctAnswer);
 		question.setCategory(category);
 		questionService.saveQuestion(question);
+
+		activityService.logActivity("New '" + title + "' question added.");
 		return "redirect:/admin/questions";
 	}
 
 	@GetMapping("/questions/edit/{id}")
-	public String editQuestion(@PathVariable("id") int id, Model model) {
-		Optional<Question> existingQuestion = questionService.getQuestionById(id);
+	public String editQuestion(@PathVariable("id") int id,
+	                           @RequestParam(name = "pageNo", defaultValue = "0") Integer pageNo,
+	                           @RequestParam(name = "pageSize", defaultValue = "5") Integer pageSize,
+	                           @RequestParam(name = "categoryId", defaultValue = "0") int categoryId,
+	                           Model model) {
 
-		if (existingQuestion.isEmpty()) {
-			return "redirect:/admin/questions";
-		}
+	    Optional<Question> existingQuestion = questionService.getQuestionById(id);
+	    if (existingQuestion.isEmpty()) {
+	        return "redirect:/admin/questions";
+	    }
 
-		model.addAttribute("question", existingQuestion.get()); // Pass actual Question
-		model.addAttribute("questions", questionService.getAllQuestions());
-		model.addAttribute("categories", categoryService.getAllCategory());
-		model.addAttribute("isEdit", true);
-		return "admin/questions";
+	    Page<Question> page;
+	    if (categoryId == 0) {
+	        page = questionService.getAllQuestionPagination(pageNo, pageSize);
+	    } else {
+	        page = questionService.getQuestionsByCategoryIdPagination(categoryId, pageNo, pageSize);
+	    }
+
+	    model.addAttribute("question", existingQuestion.get()); // Pass the question to edit
+	    model.addAttribute("categories", categoryService.getAllCategory());
+	    model.addAttribute("questions", page.getContent());
+
+	    // Add pagination data
+	    model.addAttribute("pageNo", page.getNumber());
+	    model.addAttribute("pageSize", pageSize);
+	    model.addAttribute("totalElements", page.getTotalElements());
+	    model.addAttribute("totalPages", page.getTotalPages());
+	    model.addAttribute("isFirst", page.isFirst());
+	    model.addAttribute("isLast", page.isLast());
+	    model.addAttribute("selectedCategoryId", categoryId);
+	    model.addAttribute("isEdit", true);
+
+	    return "admin/questions";
 	}
 
 	@PostMapping("/questions/update")
 	public String updateQuestion(@RequestParam int categoryId, @ModelAttribute("question") Question question) {
 		Category category = categoryService.getCategoryById(categoryId);
+		String title = category.getTitle();
 		question.setCategory(category);
 		questionService.saveQuestion(question);
+
+		activityService.logActivity("'" + title + "' question updated.");
 		return "redirect:/admin/questions";
 	}
 
 	@GetMapping("/questions/delete/{id}")
 	public String deleteQuestion(@PathVariable("id") int id) {
-		questionService.deleteQuestion(id);
+		Optional<Question> optionalQuestion = questionService.getQuestionById(id);
+
+		if (optionalQuestion.isPresent()) {
+			Question question = optionalQuestion.get();
+			String categoryTitle = question.getCategory().getTitle(); // Get category before deletion
+			questionService.deleteQuestion(id); // Delete the question
+			activityService.logActivity("Admin deleted a question from category '" + categoryTitle + "'.");
+		}
 		return "redirect:/admin/questions";
 	}
 

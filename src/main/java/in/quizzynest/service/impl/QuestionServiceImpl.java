@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import in.quizzynest.entity.Category;
@@ -49,6 +52,18 @@ public class QuestionServiceImpl implements QuestionService {
 	public List<Question> getAllQuestions() {
 		return questionRepository.findAll();
 		
+	}
+
+	@Override
+	public Page<Question> getQuestionsByCategoryIdPagination(int categoryId, int pageNo, int pageSize) {
+	    Pageable pageable = PageRequest.of(pageNo, pageSize);
+	    return questionRepository.findByCategoryId(categoryId, pageable);
+	}
+
+	@Override
+	public Page<Question> getAllQuestionPagination(Integer pageNo, Integer pageSize) {
+		Pageable pageable = PageRequest.of(pageNo, pageSize);
+		return questionRepository.findAll(pageable);
 	}
 
 }
